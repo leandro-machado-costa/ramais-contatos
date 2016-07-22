@@ -21,11 +21,7 @@ app.post('/salvar',function(req,res){
 });
 
 app.get('/',function(req,res){
-
-    var hostLista = req.headers.host.split('.'); 
-
-    res.redirect('/'+hostLista[0]);
-
+	res.sendFile(__dirname + req.route.path+"//index.html");
 });
 
 
