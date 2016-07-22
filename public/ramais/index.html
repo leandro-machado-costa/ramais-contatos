@@ -1,0 +1,163 @@
+<html>
+   
+   <head>
+       
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+
+<!-- Latest compiled JavaScript -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+       
+       
+      <script src = "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+   </head>
+   
+   <body ng-app = "app">  
+      <div ng-controller="controller" ng-init="form.form.editar=false">
+<br>
+
+  <div class="container" >
+    <form class="form-inline">
+      <input type="text" class="form-control" placeholder="Pesquisar" ng-model="pesquisar">
+            <button ng-show="form.editar" type="button" class="btn btn-success" confirmed-click="salvar()" ng-confirm-click="Tem certeza que deseja salvar?" >Salvar</button>
+      <button ng-hide="form.editar" type="button" class="btn btn btn-primary" ng-click="form.editar=!form.editar">Editar</button>
+      <button ng-show="form.editar" type="button" class="btn btn btn-primary"  ng-click="form.editar=!form.editar" >Cancelar</button>
+    </form>
+
+
+    <table class="table table-striped"  >
+    <tbody>
+        <tr>
+          <td ng-show="form.editar"><input ng-model="novoContato.nome">  </td>
+          <td ng-show="form.editar"><input ng-model="novoContato.ramal">  </td>
+          <td ng-show="form.editar"><input ng-model="novoContato.andar">  </td>
+          <td ng-show="form.editar"><input ng-model="novoContato.obs">  </td>
+          <td ng-show="form.editar"></td>
+        </tr>
+      </tbody>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Ramal</th>
+          <th>Local</th>
+          <th>Observação</th>
+          <th ng-show="form.editar">Excluir</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="(key, item) in lista | filter:pesquisar " >
+          <td ng-show="form.editar"><input ng-model="item.nome">  </td>
+          <td ng-hide="form.editar">{{item.nome}} </td>
+          <td ng-show="form.editar"><input ng-model="item.ramal">  </td>
+          <td ng-hide="form.editar">{{item.ramal}} </td>
+          <td ng-show="form.editar"><input ng-model="item.andar">  </td>
+          <td ng-hide="form.editar">{{item.andar}} </td>
+          <td ng-show="form.editar"><input ng-model="item.obs">  </td>
+          <td ng-hide="form.editar">{{item.obs}} </td>
+          <td ng-show="form.editar"><button type="button" class="btn btn btn-danger" confirmed-click="remove(item)" ng-confirm-click="Tem certeza que deseja excluir?" >Excluir</button>  </td>
+
+        </tr>
+      </tbody>
+          <tbody>
+        <tr>
+          <td ng-show="form.editar"><input ng-model="novoContato.nome">  </td>
+          <td ng-show="form.editar"><input ng-model="novoContato.ramal">  </td>
+          <td ng-show="form.editar"><input ng-model="novoContato.andar">  </td>
+          <td ng-show="form.editar"><input ng-model="novoContato.obs">  </td>
+          <td ng-show="form.editar"></td>
+        </tr>
+      </tbody>
+    </table>
+    <form class="form-inline">
+
+    <input type="text" class="form-control" placeholder="Pesquisar" ng-model="pesquisar">
+          <button ng-show="form.editar" type="button" class="btn btn-success" confirmed-click="salvar()" ng-confirm-click="Tem certeza que deseja salvar?" >Salvar</button>
+    <button ng-hide="form.editar" type="button" class="btn btn btn-primary" ng-click="form.editar=!form.editar">Editar</button>
+    <button ng-show="form.editar" type="button" class="btn btn btn-primary"  ng-click="form.editar=!form.editar" >Cancelar</button>
+    </form>
+    <p ><span class="glyphicon glyphicon-tint"></span> MPB Engenharia</p>
+  </div>
+      </div>
+      <script>
+         var app = angular.module('app', []);
+
+         app.service('servicos', ['$http', function ($http) {
+            this.setContatos = function(lista){            
+                $http({
+                    url: '/salvar',
+                    method: "POST",
+                    data: angular.toJson({lista:lista}),
+                    headers: {'Content-Type': 'application/json'}
+                   })
+            }
+            this.getContatos = function(lista){            
+                 $http({
+                    method: 'GET',
+                    url: "contatos.json"
+                }).success(function (result) {
+                    $scope.lista = angular.fromJson(result);
+                }).error(function (d) {
+                    console.log("erro " + d);
+                });
+            }
+         }]);
+      
+         app.controller('controller', ['$scope', 'servicos','$http', function($scope,servicos,$http){
+
+             $http({
+                    method: 'GET',
+                    url: "contatos.json"
+                }).success(function (result) {
+                    $scope.lista = angular.fromJson(result);
+                }).error(function (d) {
+                    console.log("erro " + d);
+                });
+
+              $scope.salvar = function(){
+
+                  var listaEnvio = [];
+                  for(var i=0;i<$scope.lista.length;i++){
+                    listaEnvio.push({nome:$scope.lista[i].nome, ramal:$scope.lista[i].ramal,andar:$scope.lista[i].andar,obs:$scope.lista[i].obs});
+                  }
+                  if(!angular.isUndefined($scope.novoContato)){
+                    listaEnvio.push({nome:$scope.novoContato.nome, ramal:$scope.novoContato.ramal,andar:$scope.novoContato.andar,obs:$scope.novoContato.obs});
+                    $scope.lista.push({nome:$scope.novoContato.nome, ramal:$scope.novoContato.ramal,andar:$scope.novoContato.andar,obs:$scope.novoContato.obs});
+                    delete $scope.novoContato;
+                  }
+
+
+
+                  $scope.form.editar = false;
+                  servicos.setContatos(listaEnvio);
+              }
+              $scope.add = function(){
+                var contato = {nome:"",ramal:0,andar:"",obs:""}
+                $scope.lista.push(contato);
+              }
+              $scope.remove = function(contato){
+                $scope.lista.splice($scope.lista.indexOf(contato), 1);
+                $scope.salvar();
+              }
+         }]);
+
+app.directive('ngConfirmClick', [
+        function(){
+            return {
+                link: function (scope, element, attr) {
+                    var msg = attr.ngConfirmClick || "Are you sure?";
+                    var clickAction = attr.confirmedClick;
+                    element.bind('click',function (event) {
+                        if ( window.confirm(msg) ) {
+                            scope.$eval(clickAction)
+                        }
+                    });
+                }
+            };
+    }])
+
+         
+      
+      </script>
+      
+   </body>
+</html>
